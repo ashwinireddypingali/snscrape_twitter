@@ -822,7 +822,7 @@ class _TwitterAPIScraper(snscrape.base.Scraper):
 	def _get_tweet_id(self, tweet):
 		return tweet['id'] if 'id' in tweet else int(tweet['id_str'])
 
-	def _make_tweet(self, tweet, user, retweetedTweet = None, quotedTweet = None, card = None):
+	def _make_tweet(self, tweet, user, retweetedTweet, quotedTweet = None, card = None):
 		tweetId = self._get_tweet_id(tweet)
 		kwargs = {}
 		kwargs['id'] = tweetId
