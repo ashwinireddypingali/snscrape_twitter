@@ -13,7 +13,6 @@ __all__ = [
 	'TwitterTrendsScraper',
 ]
 
-
 import collections
 import dataclasses
 import datetime
@@ -822,7 +821,7 @@ class _TwitterAPIScraper(snscrape.base.Scraper):
 	def _get_tweet_id(self, tweet):
 		return tweet['id'] if 'id' in tweet else int(tweet['id_str'])
 
-	def _make_tweet(self, tweet, user, retweetedTweet, quotedTweet = None, card = None):
+	def _make_tweet(self, tweet, user, retweetedTweet = None, quotedTweet = None, card = None):
 		tweetId = self._get_tweet_id(tweet)
 		kwargs = {}
 		kwargs['id'] = tweetId
@@ -1275,9 +1274,6 @@ class _TwitterAPIScraper(snscrape.base.Scraper):
 		user = self._user_to_user(result['core']['user_results']['result']['legacy'], id_ = userId)
 		kwargs = {}
 		if 'retweeted_status_result' in tweet:
-			#if result['retweeted_status_result']['result']['__typename'] == 'TweetTombstone':
-			#	kwargs['retweetedTweet'] = TweetRef(id = int(tweet['quoted_status_id_str']))
-			#else:
 			kwargs['retweetedTweet'] = self._graphql_timeline_tweet_item_result_to_tweet(tweet['retweeted_status_result']['result'])
 		if 'quoted_status_result' in result:
 			if result['quoted_status_result']['result']['__typename'] == 'TweetTombstone':
