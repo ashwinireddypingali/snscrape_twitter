@@ -1253,7 +1253,7 @@ class _TwitterAPIScraper(snscrape.base.Scraper):
 	def _tweet_to_tweet(self, tweet, obj):
 		user = self._user_to_user(obj['globalObjects']['users'][tweet['user_id_str']])
 		kwargs = {}
-		if 'retweeted_status_id_str' in tweet:
+		if 'retweeted_status_id_str' in tweet and tweet['retweeted_status_id_str'] in obj['globalObjects']['tweets']:
 			kwargs['retweetedTweet'] = self._tweet_to_tweet(obj['globalObjects']['tweets'][tweet['retweeted_status_id_str']], obj)
 		if 'quoted_status_id_str' in tweet and tweet['quoted_status_id_str'] in obj['globalObjects']['tweets']:
 			kwargs['quotedTweet'] = self._tweet_to_tweet(obj['globalObjects']['tweets'][tweet['quoted_status_id_str']], obj)
@@ -1273,8 +1273,23 @@ class _TwitterAPIScraper(snscrape.base.Scraper):
 		userId = int(result['core']['user_results']['result']['rest_id'])
 		user = self._user_to_user(result['core']['user_results']['result']['legacy'], id_ = userId)
 		kwargs = {}
-		if 'retweeted_status_result' in tweet:
-			kwargs['retweetedTweet'] = self._graphql_timeline_tweet_item_result_to_tweet(tweet['retweeted_status_result']['result'])
+#		if 'retweeted_status_result' in tweet:
+	#		if result['retweeted_status_result']['result']['__typename'] == 'TweetTombstone':
+		#		kwargs['retweetedTweet'] = TweetRef(id = int(tweet['retweeted_status_id_str']))
+			#else:
+			#	kwargs['retweetedTweet'] = self._graphql_timeline_tweet_item_result_to_tweet(tweet['retweeted_status_result']['result'])
+		if 'retweeted_status_result' in result:
+			if result['retweeted_status_result']['result']['__typename'] == 'TweetTombstone':
+				kwargs['retweetedTweet'] = TweetRef(id = int(tweet['retweeted_status_id_str']))
+			else:
+				kwargs['retweetedTweet'] = self._graphql_timeline_tweet_item_result_to_tweet(result['retweeted_status_result']['result'])
+		elif 'retweetedRefResult' in result:
+			if result['retweetedRefResult']['result']['__typename'] == 'TweetTombstone':
+				kwargs['retweetedTweet'] = TweetRef(id = int(tweet['retweeted_status_id_str']))
+			else:
+				kwargs['retweetedTweet'] = TweetRef(id = int(result['retweetedRefResult']['result']['rest_id']))
+		elif 'retweeted_status_id_str' in tweet:
+			kwargs['retweetedTweet'] = TweetRef(id = int(tweet['retweeted_status_id_str']))
 		if 'quoted_status_result' in result:
 			if result['quoted_status_result']['result']['__typename'] == 'TweetTombstone':
 				kwargs['quotedTweet'] = TweetRef(id = int(tweet['quoted_status_id_str']))
