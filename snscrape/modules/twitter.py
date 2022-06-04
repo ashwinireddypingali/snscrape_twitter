@@ -1275,7 +1275,10 @@ class _TwitterAPIScraper(snscrape.base.Scraper):
 		user = self._user_to_user(result['core']['user_results']['result']['legacy'], id_ = userId)
 		kwargs = {}
 		if 'retweeted_status_result' in tweet:
-			kwargs['retweetedTweet'] = self._graphql_timeline_tweet_item_result_to_tweet(tweet['retweeted_status_result']['result'])
+			if result['retweeted_status_result']['result']['__typename'] == 'TweetTombstone':
+				kwargs['retweetedTweet'] = TweetRef(id = int(tweet['quoted_status_id_str']))
+			else:
+				kwargs['retweetedTweet'] = self._graphql_timeline_tweet_item_result_to_tweet(tweet['retweeted_status_result']['result'])
 		if 'quoted_status_result' in result:
 			if result['quoted_status_result']['result']['__typename'] == 'TweetTombstone':
 				kwargs['quotedTweet'] = TweetRef(id = int(tweet['quoted_status_id_str']))
